@@ -1,17 +1,21 @@
 const express = require("express");
+const cookieParser = require("cookie-parser")
 
 const app = express();
 
 app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  
-    const loginInfo = req.header("Cookie");
-    if(loginInfo) {
-        res.send(`Hello, ${loginInfo.split("=").at(1)}`);
+    const user = req.cookies["user"];
+
+    if(user) {
+        res.send(`Hello, ${user}!`);
     } else {
-    res.send("Please login");
+        res.send("Please login!")
     }
+
+    
 });
 
 app.get("/login", (req, res) => {
@@ -27,9 +31,13 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    console.log(req.body);
+     res.cookie("user", req.body.username);
 
-    res.header("Set-Cookie", `login-info=${req.body.username}`);
+    res.end();
+});
+
+app.get("/logout", (req, res) => {
+    res.clearCookie("user");
 
     res.end();
 });
